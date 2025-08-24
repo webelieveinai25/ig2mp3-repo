@@ -1,0 +1,52 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install yt-dlp pyinstaller
+
+      - name: Download ffmpeg (static)
+        run: |
+          curl -L -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+          powershell -Command "Expand-Archive ffmpeg.zip -DestinationPath ffmpegdir"
+          for /d %%D in (ffmpegdir\\ffmpeg-*) do set "FFDIR=%%D"
+          copy "%FFDIR%\\bin\\ffmpeg.exe" .
+
+      - name: Build EXE
+        run: pyinstaller --onefile --noconsole --name ConvertiIG2MP3 converti_instagram_mp3.py
+
+      - name: Prepare dist
+        run: |
+          copy ffmpeg.exe dist\\
+          echo Instagram to MP3 - Windows > dist\\README.txt
+          echo. >> dist\\README.txt
+          echo 1) Double-click ConvertiIG2MP3.exe >> dist\\README.txt
+          echo 2) Paste links or load links.txt >> dist\\README.txt
+          echo 3) MP3s in output_mp3 >> dist\\README.txt
+          echo https://www.instagram.com/reel/XXXXXXXX/ > dist\\links.txt
+
+      - name: Zip
+        run: powershell -Command "Compress-Archive -Path dist\\* -DestinationPath ConvertiIG2MP3_windows.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ConvertiIG2MP3_windows
+          path: ConvertiIG2MP3_windows.zip

@@ -1,0 +1,12 @@
+# Esempio di file links.txt
+# Aggiungi qui i tuoi link Instagram (uno per riga o separati da spazi)
+# I commenti iniziano con #
+
+# Esempi di formati supportati:
+# https://www.instagram.com/reel/XXXXXXXX/
+# https://www.instagram.com/p/YYYYYYYY/
+# https://www.instagram.com/stories/username/ZZZZZZZZ/
+
+# Sostituisci con i tuoi link reali:
+# https://www.instagram.com/reel/example1/
+# https://www.instagram.com/p/example2/
