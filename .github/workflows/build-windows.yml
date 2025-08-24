@@ -26,24 +26,24 @@ jobs:
         run: |
           curl -L -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
           powershell -Command "Expand-Archive ffmpeg.zip -DestinationPath ffmpegdir"
-          for /d %%D in (ffmpegdir\\ffmpeg-*) do set "FFDIR=%%D"
-          copy "%FFDIR%\\bin\\ffmpeg.exe" .
+          Get-ChildItem ffmpegdir -Directory | ForEach-Object { $ffdir = $_.FullName }
+          Copy-Item "$ffdir\bin\ffmpeg.exe" .
 
       - name: Build EXE
         run: pyinstaller --onefile --noconsole --name ConvertiIG2MP3 converti_instagram_mp3.py
 
       - name: Prepare dist
         run: |
-          copy ffmpeg.exe dist\\
-          echo Instagram to MP3 - Windows > dist\\README.txt
-          echo. >> dist\\README.txt
-          echo 1) Double-click ConvertiIG2MP3.exe >> dist\\README.txt
-          echo 2) Paste links or load links.txt >> dist\\README.txt
-          echo 3) MP3s in output_mp3 >> dist\\README.txt
-          echo https://www.instagram.com/reel/XXXXXXXX/ > dist\\links.txt
+          Copy-Item ffmpeg.exe dist\
+          "Instagram to MP3 - Windows" | Out-File -FilePath dist\README.txt -Encoding UTF8
+          "" | Out-File -FilePath dist\README.txt -Append -Encoding UTF8
+          "1) Double-click ConvertiIG2MP3.exe" | Out-File -FilePath dist\README.txt -Append -Encoding UTF8
+          "2) Paste links or load links.txt" | Out-File -FilePath dist\README.txt -Append -Encoding UTF8
+          "3) MP3s in output_mp3" | Out-File -FilePath dist\README.txt -Append -Encoding UTF8
+          "https://www.instagram.com/reel/XXXXXXXX/" | Out-File -FilePath dist\links.txt -Encoding UTF8
 
       - name: Zip
-        run: powershell -Command "Compress-Archive -Path dist\\* -DestinationPath ConvertiIG2MP3_windows.zip"
+        run: Compress-Archive -Path dist\* -DestinationPath ConvertiIG2MP3_windows.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
